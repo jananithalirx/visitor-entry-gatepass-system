@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visitly — Gate Pass Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --indigo:#4338ca;
+    --indigo-deep:#312896;
+    --indigo-soft:#eeecfc;
+    --bg:#ffffff;
+    --card:#ffffff;
+    --ink:#191b23;
+    --ink-soft:#6b7080;
+    --line:#e7e8ee;
+    --ok:#0f7a5c;
+    --ok-soft:#e6f6ef;
+    --warn:#b5760f;
+    --warn-soft:#fdf1de;
+    --err:#c0393f;
+    --err-soft:#fbeaec;
+    --font-display:'Manrope', sans-serif;
+    --font-body:'Inter', sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    min-height:100vh;
+  }
+  :focus-visible{ outline:2px solid var(--indigo); outline-offset:2px; }
+  ::selection{ background: var(--indigo); color:#fff; }
+
+  .wrap{ max-width: 660px; margin:0 auto; padding: 48px 22px 70px; }
+
+  header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom: 34px;
+  }
+  .logo{
+    width:38px; height:38px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, var(--indigo), var(--indigo-deep));
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--font-display);
+    font-weight:800;
+    color:#fff;
+    font-size:16px;
+    flex-shrink:0;
+  }
+  header .title{
+    font-family: var(--font-display);
+    font-weight:800;
+    font-size: 18px;
+    color: var(--ink);
+  }
+  header .tag{
+    font-size:12px;
+    color: var(--ink-soft);
+  }
+
+  .status-pill{
+    margin-left:auto;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:11.5px;
+    color: var(--ok);
+    background: var(--ok-soft);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight:600;
+  }
+  .status-pill .dot{
+    width:6px; height:6px; border-radius:50%;
+    background: var(--ok);
+  }
+
+  nav.tabs{
+    display:flex;
+    gap:6px;
+    background: #f5f5f8;
+    padding: 5px;
+    border-radius: 12px;
+    margin-bottom: 26px;
+  }
+  nav.tabs button{
+    flex:1;
+    padding: 10px 8px;
+    background:none;
+    border:none;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-weight:600;
+    font-size: 13px;
+    color: var(--ink-soft);
+    cursor:pointer;
+    transition: all 0.15s ease;
+  }
+  nav.tabs button:hover{ color: var(--ink); }
+  nav.tabs button.active{
+    background: #fff;
+    color: var(--indigo-deep);
+    box-shadow: 0 1px 3px rgba(20,20,50,0.10);
+  }
+
+  .id-strip{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background: var(--indigo-soft);
+    border-radius: 12px;
+    padding: 13px 18px;
+    margin-bottom: 22px;
+  }
+  .id-strip .label{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    color: var(--indigo-deep);
+  }
+  .id-strip .value{
+    font-size: 13px;
+    color: var(--ink);
+    font-weight:500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .panel{ display:none; }
+  .panel.active{ display:block; animation: rise 0.25s ease; }
+  @keyframes rise{ from{opacity:0; transform:translateY(5px);} to{opacity:1; transform:translateY(0);} }
+
+  .panel h2{
+    font-family: var(--font-display);
+    font-weight:800;
+    font-size:20px;
+    margin: 0 0 4px;
+  }
+  .panel .lede{
+    font-size:13px;
+    color: var(--ink-soft);
+    margin: 0 0 24px;
+  }
+
+  .field{ margin-bottom:16px; }
+  .field label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color: var(--ink);
+    margin-bottom:6px;
+  }
+  .field input, .field textarea{
+    width:100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    background: #fbfbfc;
+    color: var(--ink);
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .field input:focus, .field textarea:focus{
+    border-color: var(--indigo);
+    background:#fff;
+  }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:520px){ .row2{ grid-template-columns:1fr; } }
+
+  .btn{
+    font-family: var(--font-body);
+    font-weight:700;
+    font-size: 14px;
+    background: var(--indigo);
+    color:#fff;
+    border:none;
+    padding: 13px 22px;
+    border-radius: 10px;
+    cursor:pointer;
+    width:100%;
+    margin-top:6px;
+    transition: background 0.15s ease, transform 0.05s ease;
+  }
+  .btn:hover{ background: var(--indigo-deep); }
+  .btn:active{ transform: translateY(1px); }
+  .btn.ghost{
+    background: #fff;
+    border: 1.5px solid var(--line);
+    color: var(--ink);
+    width:auto;
+    padding: 9px 16px;
+    font-size:13px;
+  }
+  .btn.ghost:hover{ background: #f7f7fa; }
+
+  .note{
+    margin-top:16px;
+    padding: 13px 15px;
+    border-radius: 10px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height:1.55;
+    display:none;
+    white-space: pre-wrap;
+  }
+  .note.show{ display:block; }
+  .note.ok{ background: var(--ok-soft); color:#0a5940; font-family: var(--font-body); }
+  .note .check{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:16px; height:16px;
+    border-radius:50%;
+    background: var(--ok);
+    color:#fff;
+    font-size:10px;
+    line-height:1;
+  }
+  .note.err{ background: var(--err-soft); color:#7d2126; }
+
+  .pass-item{
+    border:1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 15px 17px;
+    margin-bottom: 10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    transition: border-color 0.15s ease;
+  }
+  .pass-item:hover{ border-color:#c8c9e0; }
+  .pass-item .meta{ font-size:13px; line-height:1.65; }
+  .pass-item .meta .pid{ font-family: monospace; font-size:11.5px; color:var(--ink-soft); }
+  .pass-item .status{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.3px;
+    text-transform:uppercase;
+    padding: 5px 11px;
+    border-radius: 20px;
+  }
+  .status.pending{ background: var(--warn-soft); color: var(--warn); }
+  .status.approved{ background: var(--ok-soft); color: var(--ok); }
+  .pass-actions{ display:flex; align-items:center; gap:10px; }
+
+  .helper{
+    font-size:12px;
+    color: var(--ink-soft);
+    margin: -8px 0 16px;
+    background:#f7f7fa;
+    padding: 9px 12px;
+    border-radius:8px;
+  }
+  .list-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  footer{
+    text-align:center;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    padding-top: 30px;
+  }
+
+  @media (prefers-reduced-motion: reduce){ .panel.active{ animation:none; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="logo">V</div>
+    <div>
+      <div class="title">Visitly</div>
+      <div class="tag">Gate pass console</div>
+    </div>
+    <div class="status-pill"><span class="dot"></span>API online</div>
+  </header>
+
+  <nav class="tabs">
+    <button data-panel="signup" class="active">Register</button>
+    <button data-panel="login">Sign in</button>
+    <button data-panel="pass">New pass</button>
+    <button data-panel="passes">My passes</button>
+  </nav>
+
+  <!-- SIGNUP -->
+  <section class="panel active" id="panel-signup">
+    <h2>Create your visitor profile</h2>
+    <p class="lede">One-time registration — reused for every gate pass you request.</p>
+
+    <div class="field">
+      <label>Full name</label>
+      <input type="text" id="su-name" placeholder="e.g. Janani R">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="su-email" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label>Phone</label>
+        <input type="text" id="su-phone" placeholder="10-digit number">
+      </div>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="su-password" placeholder="Choose a password">
+    </div>
+    <button class="btn" onclick="doSignup()">Create profile</button>
+    <div class="note" id="su-note"></div>
+  </section>
+
+  <!-- LOGIN -->
+  <section class="panel" id="panel-login">
+    <h2>Welcome back</h2>
+    <p class="lede">Sign in with the email and password used at registration.</p>
+
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="li-email" placeholder="you@example.com">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="li-password" placeholder="Your password">
+    </div>
+    <button class="btn" onclick="doLogin()">Sign in</button>
+    <div class="note" id="li-note"></div>
+  </section>
+
+  <!-- NEW PASS -->
+  <section class="panel" id="panel-pass">
+    <div class="id-strip">
+      <span class="label">Active visitor</span>
+      <span class="value" id="active-visitor-id-1">none yet</span>
+    </div>
+    <h2>Request a gate pass</h2>
+    <p class="lede">Fill in the visit details to generate a new pass.</p>
+
+    <div class="field">
+      <label>Host ID (whom you're visiting)</label>
+      <input type="text" id="gp-host" placeholder="e.g. host001">
+    </div>
+    <div class="field">
+      <label>Purpose of visit</label>
+      <textarea id="gp-purpose" rows="2" placeholder="e.g. Project review meeting"></textarea>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Valid from</label>
+        <input type="datetime-local" id="gp-from">
+      </div>
+      <div class="field">
+        <label>Valid to</label>
+        <input type="datetime-local" id="gp-to">
+      </div>
+    </div>
+    <button class="btn" onclick="doCreatePass()">Issue pass</button>
+    <div class="note" id="gp-note"></div>
+  </section>
+
+  <!-- MY PASSES -->
+  <section class="panel" id="panel-passes">
+    <div class="id-strip">
+      <span class="label">Active visitor</span>
+      <span class="value" id="active-visitor-id-2">none yet</span>
+    </div>
+    <div class="list-head">
+      <div>
+        <h2 style="margin-bottom:2px;">Your passes</h2>
+        <p class="lede" style="margin:0;">Every pass issued to the active visitor ID.</p>
+      </div>
+      <button class="btn ghost" onclick="loadPasses()">Refresh</button>
+    </div>
+    <div class="helper">Tip: Approve flips a pending pass to approved — normally a host/admin action.</div>
+    <div id="passes-list"></div>
+    <div class="note" id="pl-note"></div>
+  </section>
+
+  <footer>SQLite &amp; FastAPI backend · running locally on http://localhost:8000</footer>
+</div>
+
+<script>
+const API_BASE = "http://localhost:8000/api";
+let activeVisitorId = localStorage.getItem("visitor_id") || null;
+
+function updateVisitorDisplay(){
+  const label = activeVisitorId ? "Logged in" : "Not signed in yet";
+  document.getElementById("active-visitor-id-1").textContent = label;
+  document.getElementById("active-visitor-id-2").textContent = label;
+}
+updateVisitorDisplay();
+
+document.querySelectorAll("nav.tabs button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("panel-"+btn.dataset.panel).classList.add("active");
+  });
+});
+
+function showNote(id, msg, ok){
+  const el = document.getElementById(id);
+  el.className = "note show " + (ok ? "ok" : "err");
+  if(ok){
+    el.innerHTML = '<span class="check">&#10003;</span> ' + msg;
+  } else {
+    el.textContent = msg;
+  }
+}
+
+async function callApi(path, method, body){
+  const res = await fetch(API_BASE + path, {
+    method: method,
+    headers: { "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  let data;
+  try{ data = await res.json(); } catch(e){ data = null; }
+  return { ok: res.ok, status: res.status, data: data };
+}
+
+async function doSignup(){
+  const name = document.getElementById("su-name").value.trim();
+  const email = document.getElementById("su-email").value.trim();
+  const phone = document.getElementById("su-phone").value.trim();
+  const password = document.getElementById("su-password").value;
+
+  if(!name || !email || !phone || !password){
+    showNote("su-note", "Fill every field before registering.", false);
+    return;
+  }
+
+  const { ok, data } = await callApi("/auth/signup", "POST", { name, email, phone, password });
+
+  if(ok && data && data.success){
+    activeVisitorId = data.data.visitor_id;
+    localStorage.setItem("visitor_id", activeVisitorId);
+    updateVisitorDisplay();
+    showNote("su-note", "Visitor profile created successfully.", true);
+  } else {
+    showNote("su-note", "Could not register.\n" + JSON.stringify(data && data.detail ? data.detail : data), false);
+  }
+}
+
+async function doLogin(){
+  const email = document.getElementById("li-email").value.trim();
+  const password = document.getElementById("li-password").value;
+
+  if(!email || !password){
+    showNote("li-note", "Enter email and password.", false);
+    return;
+  }
+
+  const { ok, data } = await callApi("/auth/login", "POST", { email, password });
+
+  if(ok && data && data.success){
+    if(data.data && data.data.visitor_id){
+      activeVisitorId = data.data.visitor_id;
+      localStorage.setItem("visitor_id", activeVisitorId);
+      updateVisitorDisplay();
+    }
+    showNote("li-note", "Signed in successfully.", true);
+  } else {
+    showNote("li-note", "Login failed.\n" + JSON.stringify(data && data.detail ? data.detail : data), false);
+  }
+}
+
+async function doCreatePass(){
+  if(!activeVisitorId){
+    showNote("gp-note", "No active visitor ID. Register or sign in first.", false);
+    return;
+  }
+  const host_id = document.getElementById("gp-host").value.trim();
+  const purpose = document.getElementById("gp-purpose").value.trim();
+  const valid_from = document.getElementById("gp-from").value;
+  const valid_to = document.getElementById("gp-to").value;
+
+  if(!host_id || !purpose || !valid_from || !valid_to){
+    showNote("gp-note", "Fill every field before issuing a pass.", false);
+    return;
+  }
+
+  const { ok, data } = await callApi("/gatepass/", "POST", {
+    visitor_id: activeVisitorId,
+    host_id,
+    purpose,
+    valid_from: new Date(valid_from).toISOString(),
+    valid_to: new Date(valid_to).toISOString()
+  });
+
+  if(ok && data && data.success){
+    showNote("gp-note", "Gate pass issued — status: " + data.data.status + ".", true);
+  } else {
+    showNote("gp-note", "Could not issue pass.\n" + JSON.stringify(data && data.detail ? data.detail : data), false);
+  }
+}
+
+async function loadPasses(){
+  if(!activeVisitorId){
+    showNote("pl-note", "No active visitor ID. Register or sign in first.", false);
+    document.getElementById("passes-list").innerHTML = "";
+    return;
+  }
+
+  const { ok, data } = await callApi("/gatepass/visitor/" + activeVisitorId, "GET");
+  const list = document.getElementById("passes-list");
+  list.innerHTML = "";
+
+  if(ok && data && data.success && Array.isArray(data.data) && data.data.length){
+    document.getElementById("pl-note").className = "note";
+    data.data.forEach(p=>{
+      const div = document.createElement("div");
+      div.className = "pass-item";
+      const statusClass = (p.status || "").toLowerCase() === "approved" ? "approved" : "pending";
+      div.innerHTML = `
+        <div class="meta">
+          <span class="pid">Pass #${p.pass_id.slice(0,8)}</span><br>
+          Host: ${p.host_id} · ${p.purpose || ""}<br>
+          ${new Date(p.valid_from).toLocaleString()} &rarr; ${new Date(p.valid_to).toLocaleString()}
+        </div>
+        <div class="pass-actions">
+          <span class="status ${statusClass}">${p.status}</span>
+          ${statusClass === "pending" ? `<button class="btn ghost" onclick="approvePass('${p.pass_id}')">Approve</button>` : ""}
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  } else if(ok){
+    showNote("pl-note", "No gate passes yet for this visitor.", true);
+  } else {
+    showNote("pl-note", "Could not load passes.\n" + JSON.stringify(data), false);
+  }
+}
+
+async function approvePass(passId){
+  const { ok, data } = await callApi("/gatepass/" + passId + "/approve", "PATCH");
+  if(ok && data && data.success){
+    loadPasses();
+  } else {
+    showNote("pl-note", "Could not approve pass.\n" + JSON.stringify(data), false);
+  }
+}
+</script>
+
+</body>
+</html>
