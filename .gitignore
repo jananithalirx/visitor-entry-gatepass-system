@@ -17,3 +17,10 @@ build/
 .vscode/*
 !.vscode/extensions.json
 .DS_Store
+
+venv/
+__pycache__/
+*.pyc
+.env
+*.db
+project/
