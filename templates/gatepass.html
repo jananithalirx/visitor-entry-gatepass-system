@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gate Pass</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+  <div class="pass-box" id="passArea">
+    <h2>VISITOR GATE PASS</h2>
+    <hr>
+    <p><b>Pass ID:</b> {{ v.id }}</p>
+    <p><b>Name:</b> {{ v.name }}</p>
+    <p><b>Phone:</b> {{ v.phone }}</p>
+    <p><b>Purpose:</b> {{ v.purpose }}</p>
+    <p><b>Meeting:</b> {{ v.meet }}</p>
+    <p><b>Vehicle No:</b> {{ v.vehicle }}</p>
+    <p><b>In Time:</b> {{ v.in_time }}</p>
+    <p><b>Date:</b> {{ v.date }}</p>
+    <hr>
+    <p style="font-size:12px;">Please carry this pass while inside the campus</p>
+  </div>
+
+  <br>
+  <button onclick="window.print()" class="btn">Print Pass</button>
+  <a href="{{ url_for('home') }}"><button class="btn">Home</button></a>
+</div>
+
+</body>
+</html>

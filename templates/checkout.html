@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Visitor Checkout</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+
+<div class="navbar">
+  <h2>Visitor Checkout</h2>
+</div>
+
+<div class="container">
+
+  {% if pending|length == 0 %}
+    <p>No visitors currently inside.</p>
+  {% else %}
+    <table border="1" cellpadding="6" cellspacing="0">
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>In Time</th>
+        <th>Action</th>
+      </tr>
+      {% for row in pending %}
+      <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
+        <td>{{ row[2] }}</td>
+        <td>{{ row[6] }}</td>
+        <td>
+          <form method="POST" action="{{ url_for('checkout') }}" onsubmit="return confirmCheckout()">
+            <input type="hidden" name="v_id" value="{{ row[0] }}">
+            <button type="submit" class="btn">Checkout</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
+  <br>
+  <a href="{{ url_for('home') }}">Back to Home</a>
+</div>
+
+</body>
+</html>

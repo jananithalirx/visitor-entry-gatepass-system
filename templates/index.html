@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Visitor Gate Pass System</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+  <h2>Visitor Entry & Gate Pass Management</h2>
+</div>
+
+<div class="container">
+  <h3>Welcome</h3>
+  <p>Select an option below:</p>
+
+  <div class="menu-links">
+    <a href="{{ url_for('new_entry') }}"><button class="btn">New Visitor Entry</button></a>
+    <a href="{{ url_for('records') }}"><button class="btn">View All Records</button></a>
+    <a href="{{ url_for('checkout') }}"><button class="btn">Visitor Checkout</button></a>
+  </div>
+</div>
+
+</body>
+</html>
